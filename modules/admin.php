@@ -11,20 +11,11 @@
 $isAdmin = false;
 $flagFound = false;
 
-// VULNÉRABILITÉ : Vérification basée sur un cookie modifiable par l'utilisateur !
-if (isset($_COOKIE['is_admin']) && $_COOKIE['is_admin'] === 'true') {
+// CORRECTION : Vérification basée sur la session côté serveur (non modifiable par l'utilisateur)
+if (isLoggedIn() && isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === 1) {
     $isAdmin = true;
     $flagFound = true;
 }
-
-// Vérification alternative via un champ caché (aussi vulnérable)
-if (isset($_POST['admin_check']) && $_POST['admin_check'] === '1') {
-    $isAdmin = true;
-    $flagFound = true;
-}
-
-// La "vraie" vérification (que les étudiants devront implémenter)
-// $isAdmin = isLoggedIn() && $_SESSION['is_admin'] === 1;
 ?>
 
 <div class="container">

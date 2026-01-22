@@ -5,10 +5,11 @@
  * 🎯 OBJECTIF : Trouver le flag caché dans les headers HTTP
  */
 
-// VULNÉRABILITÉ : Header de debug avec le flag !
-header('X-Debug-Flag: ' . SECRET_DEBUG);
-header('X-Powered-By: PHP/' . PHP_VERSION);
-header('X-Server-Mode: development');
+// CORRECTION : Supprimer les headers de debug sensibles
+// Pas de header 'X-Debug-Flag' ni 'X-Server-Mode' en production
+// On masque aussi la version de PHP
+// header('X-Powered-By: PHP/' . PHP_VERSION); // SUPPRIMÉ
+// header('X-Server-Mode: development'); // SUPPRIMÉ
 
 // Informations serveur
 $serverInfo = [

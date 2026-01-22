@@ -1,33 +1,63 @@
-# VULNÉRABILITÉ VOLONTAIRE : Ce .htaccess est faible
-# Les étudiants devront le renforcer en Phase 2
+# SecuLab Security Configuration - Phase 2 Corrections
+# ========================================================
 
-# URL Rewriting pour le routeur
+# ============================================
+# 1. URL Rewriting pour le routeur
+# ============================================
 RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.php [QSA,L]
 
-# PROBLÈME : Le fichier .env est accessible directement !
-# Solution : Ajouter cette règle
-# <Files ".env">
-#     Require all denied
-# </Files>
+# ============================================
+# 2. Désactiver le listage des répertoires
+# ============================================
+Options -Indexes
 
-# PROBLÈME : La base SQLite est accessible !
-# Solution : Ajouter cette règle
-# <Files "*.sqlite">
-#     Require all denied
-# </Files>
+# ============================================
+# 3. Protéger les fichiers sensibles
+# ============================================
+<Files ".env">
+    Require all denied
+</Files>
 
-# PROBLÈME : Les signatures serveur sont visibles
-# Solution : Décommenter ces lignes
-# ServerSignature Off
-# Header unset X-Powered-By
+<Files "*.sqlite">
+    Require all denied
+</Files>
 
-# PROBLÈME : Pas de protection contre le clickjacking
-# Solution : Ajouter cette ligne
-# Header always set X-Frame-Options "SAMEORIGIN"
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
 
-# PROBLÈME : Pas de Content Security Policy
-# Solution : Ajouter une CSP stricte
-# Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' fonts.googleapis.com; font-src fonts.gstatic.com"
+# ============================================
+# 4. Masquer les signatures serveur
+# ============================================
+ServerSignature Off
+
+# ============================================
+# 5. Headers de sécurité
+# ============================================
+<IfModule mod_headers.c>
+    # Masquer la version de PHP
+    Header always unset X-Powered-By
+    Header always unset X-Debug-Flag
+    Header always unset X-Server-Mode
+    Header set X-Powered-By "SecuLab"
+    
+    # Protection contre le Clickjacking
+    Header always set X-Frame-Options "SAMEORIGIN"
+    
+    # Protection contre MIME sniffing
+    Header always set X-Content-Type-Options "nosniff"
+    
+    # Protection XSS (anciennes navigateurs)
+    Header always set X-XSS-Protection "1; mode=block"
+    
+    # Content Security Policy
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' fonts.googleapis.com; font-src fonts.gstatic.com; img-src 'self' data:; connect-src 'self'"
+</IfModule>
+
+# ============================================
+# 6. Limiter la taille des uploads (10MB)
+# ============================================
+LimitRequestBody 10485760

@@ -21,7 +21,16 @@ $profile = null;
 $isOwnProfile = false;
 
 if ($requestedId) {
-    // VULNÉRABILITÉ : Accès direct sans contrôle d'autorisation !
+    // CORRECTION : Vérification de l'autorisation côté serveur
+    // L'utilisateur ne peut voir que son propre profil
+    if (!isLoggedIn()) {
+        die('Accès refusé. Veuillez vous connecter.');
+    }
+    
+    if ($requestedId != $_SESSION['user_id']) {
+        die('Accès refusé. Vous ne pouvez voir que votre propre profil.');
+    }
+    
     $stmt = $db->prepare('SELECT id, username, bio, is_admin FROM users WHERE id = ?');
     $stmt->execute([$requestedId]);
     $profile = $stmt->fetch(PDO::FETCH_ASSOC);

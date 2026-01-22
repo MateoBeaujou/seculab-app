@@ -22,13 +22,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if(in_array($username, ["admin' --", "admin' OR '1'='1", "admin' OR 1=1 --", "admin' OR 1=1"])) {
       $error = "Bien essayé ! Mais non...";   
     } else {
-        // VULNÉRABILITÉ : Concaténation directe dans la requête SQL !
-        // Un attaquant peut injecter du SQL via le champ username
-        $query = "SELECT * FROM users WHERE username = '$username' AND password = '" . md5($password) . "'";
-        
+        // CORRECTION : Utilisation de requêtes préparées (PDO)
+        // Les données utilisateur sont séparées de la structure SQL
         try {
-            $result = $db->query($query);
-            $users = $result->fetchAll(PDO::FETCH_ASSOC);
+            $stmt = $db->prepare('SELECT * FROM users WHERE username = ? AND password = ?');
+            $hashedPassword = md5($password);
+            $stmt->execute([$username, $hashedPassword]);
+            $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
             usort($users, fn($a, $b) => $b['id'] - $a['id']); // Tri DESC par ID
             $user = $users[0] ?? null;
             

@@ -81,9 +81,8 @@ $posts = $db->query('SELECT * FROM wall_posts ORDER BY created_at DESC LIMIT 50'
                         </div>
                         <div class="post-content">
                             <?php 
-                            // VULNÉRABILITÉ : Pas d'échappement HTML !
-                            // À corriger avec : htmlspecialchars($post['content'], ENT_QUOTES, 'UTF-8')
-                            echo $post['content']; 
+                            // CORRECTION : Échappement HTML pour prévenir le XSS
+                            echo htmlspecialchars($post['content'], ENT_QUOTES, 'UTF-8'); 
                             ?>
                         </div>
                     </div>

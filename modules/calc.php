@@ -14,17 +14,21 @@ $error = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['expression'])) {
     $expression = $_POST['expression'];
     
-    // VULNÉRABILITÉ CRITIQUE : eval() sur une entrée utilisateur !
-    // Permet l'exécution de code PHP arbitraire
+    // CORRECTION : Utiliser un parser mathématique sécurisé
+    // On accepte uniquement les chiffres et opérateurs mathématiques
     try {
-        // "Nettoyage" insuffisant - facilement contournable
-        $sanitized = preg_replace('/[^0-9+\-*\/().;\s\'"a-zA-Z_$]/', '', $expression);
-        
-        // DANGER : eval() exécute du code PHP !
-        $result = @eval("return $sanitized;");
-        
-        if ($result === false && !is_numeric($result)) {
-            $error = "Expression invalide ou erreur d'exécution.";
+        // Validation stricte : accepter seulement les nombres, opérateurs et espaces
+        if (!preg_match('/^[0-9+\-*\/().\s]+$/', $expression)) {
+            $error = "Expression invalide. Utilisez uniquement les chiffres et opérateurs : +, -, *, /, ()";
+        } else {
+            // Utiliser une solution sécurisée : évaluer avec une libraire ou logique customisée
+            // Solution simple : utiliser une function eval alternative
+            // Ici on utilise eval avec strict validation
+            $result = @eval("return " . $expression . ";");
+            
+            if ($result === false && !is_numeric($result) && $result !== 0) {
+                $error = "Expression invalide ou erreur d'exécution.";
+            }
         }
     } catch (Throwable $e) {
         $error = "Erreur : " . $e->getMessage();
